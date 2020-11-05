@@ -23,6 +23,7 @@ setup(
                         'pandas',
                         'scipy',
                         'numpy',
+                        'tqdm'
                         ],
       classifiers=[
                    "Development Status :: 1 - Beta",
