@@ -1,7 +1,7 @@
 import os
 import argparse
 print("*** SCProcessing Imported Successfully ***")
-# logging
+# logging 
 import logging
 from datetime import datetime
 # Package classes
@@ -11,12 +11,12 @@ from SCProcessing import Preprocess, TrainSplit, LoggingHandler
 verbose = True;
 if verbose:
     logging.basicConfig(format='%(asctime)s - %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S',
-                        level=logging.INFO,
-                        handlers=[LoggingHandler()])
+                    datefmt='%Y-%m-%d %H:%M:%S',
+                    level=logging.INFO,
+                    handlers=[LoggingHandler()])
 
 
-# parse input arguments for preprocessing data
+# parse input arguments for preprocessing data 
 parser = argparse.ArgumentParser()
 parser.add_argument('--minGenes', type=int, default=10, help='minimum number of genes, default=10')
 parser.add_argument('--minCells', type=int, default=3, help='minimum number of cells, default=3')
@@ -47,7 +47,7 @@ opt.rawDataPath =  "/home/jovyan/GitHub/DataSets/3kPBMCs.h5ad";
 obj = Preprocess(opt.minGenes, opt.minCells, opt.res, opt.randSeed, opt.scaleFactor, opt.rawDataPath);
 obj.Process();
 
-# get the modified data so that we can do training splits and clustering
+# get the modified data so that we can do training splits and clustering 
 proc_data = obj.GetAnnData();
 
 train_split = TrainSplit(proc_data, opt.trainPercentage, opt.validationPercentage, opt.testPercentage, opt.balancedSplit, opt.randSeed, opt.res, opt.savePath);
@@ -58,3 +58,5 @@ train_split.Split()
 logging.info("Train, Valid and Test split is complete")
 
 train_split.Save()
+
+print("DONE")
