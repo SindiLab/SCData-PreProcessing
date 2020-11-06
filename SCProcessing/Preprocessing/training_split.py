@@ -225,7 +225,12 @@ for key, value in cells_per_cluster.items():
             """
         
         if not self.save_path:
-            os.makedirs("./TrainSplitData")
+            # let's try to make a new directory
+            try:
+                os.makedirs("./TrainSplitData")
+            except:
+                pass
+            
             self.save_path = "./TrainSplitData/"
     
         save_path = self.save_path + "TrainSplit" + ".h5ad";
