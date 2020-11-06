@@ -1,15 +1,31 @@
 import os
 import json
-import numpy
+import logging
+import warnings
+logging.warn("Preprocessing: importing scanpy (may take a second)");
 import scanpy as sc
+logging.warn("Preprocessing: Importing Done");
 import scipy.sparse as s_sparse
 
 # Logging
 import logging
 from datetime import datetime
 
+# to hide pandas warning (or any other overhead libs)
+hide_warnings = False;
+
+if hide_warnings:
+    import warnings
+    warnings.filterwarnings("ignore")
+
+
 
 class Preprocess():
+    """
+        
+        A class for preprocessing of single cell RNA-seq data
+        
+        """
     def __init__(self, minGene, minCells, res, randSeed, scaleFactor, rawDataPath):
         """
             
@@ -55,7 +71,7 @@ def ReadData(self, inp_format_ = None):
         """
             logging.info(f"Reading raw data from {self.raw_path}");
             
-            # to see which file format has been provided to the function
+            # to see which file format has been provided to the method
             if inp_format_:
                 self.inp_format = inp_format_
                     else:
@@ -81,7 +97,7 @@ def ReadData(self, inp_format_ = None):
                                                                 adata = scanpy.read(self.raw_path)
                                                                     
                                                                     except:
-                                                                        raise ValueError(f"We have not gotten to {self.inp_format} yet, please explicitly specify this format for the function call")
+                                                                        raise ValueError(f"We have not gotten to {self.inp_format} yet, please explicitly specify this format for the method call")
                                                                             
                                                                             # keep track of unique gene names
                                                                             adata.var_names_make_unique()
@@ -201,7 +217,7 @@ save_path = self.save_path + str2remove + "_processed." + self.inp_format;
             json.dump(hparam, fp)
 
 
-def Process(self):
+def Process(self, save = True):
     """
         
         To automate the preprocessing procedure in one go!
@@ -220,21 +236,27 @@ def Process(self):
             self.ReadData();
             self.Filter();
             self.Normalize();
+            if save:
             self.Save();
+                else:
+                    logging.info("Skipping save as it was passed to this method")
 
 
 
-"""
-    To be added to a different file
-    
-    #             'train_count': self.train_cells,
-    #             'valid_count': self.valid_cells,
-    #             'test_count': self.test_cells,
-    #             'train_cells_per_cluster': self.train_cells_per_cluster,
-    #             'valid_cells_per_cluster': self.valid_cells_per_cluster,
-    #             'test_cells_per_cluster': self.test_cells_per_cluster,
-    #             'clusters_no': self.clusters_no,
-    #             'clusters_ratios': self.clusters_ratios
-    
-    
+def GetAnnData(self):
     """
+        
+        Getter method for the modified preprocessed data
+        
+        returns:
+        the annotated data
+        
+        class variable return:
+        None
+        
+        modification:
+        None
+        
+        """
+            
+            return self.sc_raw
