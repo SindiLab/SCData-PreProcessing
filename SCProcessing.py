@@ -30,7 +30,7 @@ parser.add_argument("--validationPercentage", type=int, default=20, help="Percen
 parser.add_argument("--testPercentage", type=int, default=0, help="Percentage of testing data, Default=00")
 parser.add_argument("--balancedSplit", type=bool, default=True, help="Whether we want a balance split or not, Default=True")
 parser.add_argument("--randSeed", type=int, default=13, help="Random seed, Default=13")
-parser.add_argument("--res", type=float, default=0, help="Clustering res, Default=0.15")
+parser.add_argument("--res", type=float, default=0.15, help="Clustering res, Default=0.15")
 
 
 
