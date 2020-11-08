@@ -271,3 +271,8 @@ class TrainSplit():
         with open(os.path.join(self.save_path, 'TrainSplit_parameters.json'), 'w') as fp:
 #             json.dump(hparam, fp, sort_keys=True, indent=4)
             json.dump(hparam, fp)
+    
+    
+    def GetData(self):
+        
+        return self.sc_raw;

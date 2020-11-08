@@ -5,7 +5,9 @@ print("*** SCProcessing Imported Successfully ***")
 import logging
 from datetime import datetime
 # Package classes
-from SCProcessing import Preprocess, TrainSplit, LoggingHandler
+from SCProcessing import Preprocess, TrainSplit, LoggingHandler, read_and_serialize
+
+import scanpy as sc
 
 # if you don't want any logging output from the class methods
 verbose = True;
@@ -43,20 +45,31 @@ if opt.savePath:
     os.makedirs(opt.savePath)
 
 opt.rawDataPath =  "/home/jovyan/GitHub/DataSets/3kPBMCs.h5ad";
+opt.savePath = "/home/jovyan/GitHub/DataSets/";
 
-obj = Preprocess(opt.minGenes, opt.minCells, opt.res, opt.randSeed, opt.scaleFactor, opt.rawDataPath);
-obj.Process();
+# if we have to prepare the data from raw SC data
+""" 
+# obj = Preprocess(opt.minGenes, opt.minCells, opt.res, opt.randSeed, opt.scaleFactor, opt.rawDataPath);
+# obj.Process();
 
-# get the modified data so that we can do training splits and clustering 
-proc_data = obj.GetAnnData();
+# # get the modified data so that we can do training splits and clustering 
+# proc_data = obj.GetAnnData();
 
-train_split = TrainSplit(proc_data, opt.trainPercentage, opt.validationPercentage, opt.testPercentage, opt.balancedSplit, opt.randSeed, opt.res, opt.savePath);
+# train_split = TrainSplit(proc_data, opt.trainPercentage, opt.validationPercentage, opt.testPercentage, opt.balancedSplit, opt.randSeed, opt.res, opt.savePath);
 
-print(proc_data);
-train_split.Cluster()
-train_split.Split()
-logging.info("Train, Valid and Test split is complete")
+# print(proc_data);
+# train_split.Cluster()
+# train_split.Split()
+# train_split.Save()
+# logging.info("Train, Valid and Test split is complete")
+# split_data = train_split.GetData()
+"""
 
-train_split.Save()
+## if the data with the splits is already available ##
+split_data = sc.read("/home/jovyan/GitHub/DataSets/TrainSplit.h5ad")
+print(split_data);
 
+
+print("Calling TF Creator")
+read_and_serialize(split_data,opt.savePath) 
 print("DONE")
