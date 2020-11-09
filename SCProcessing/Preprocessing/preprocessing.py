@@ -165,6 +165,31 @@ class Preprocess():
 
         logging.info(f"Normalizing the data with a library size of {self.scale}")
         sc.pp.normalize_per_cell(self.sc_raw, counts_per_cell_after=self.scale)
+        
+        
+    def Transform(self):
+        
+        """
+        Log transform to turn data into a normal distribution 
+        
+        *** OTHER METHOD SHOULD BE IMPLEMENTED HERE IN THE FUTURE ***
+        
+        inputes:
+            None
+        
+        returns:
+            None
+        
+        class variable return:
+            None
+            
+        modification:
+            it will directly modify the raw data based on the transformed version
+        
+        """
+
+        logging.info(f"Applying log transform to the data")
+        sc.pp.log1p(self.sc_raw)
 
 
     def Save(self, path = None):
@@ -233,6 +258,8 @@ class Preprocess():
         self.ReadData();
         self.Filter();
         self.Normalize();
+        self.Transfor();
+        
         if save:
             self.Save();
         else:
