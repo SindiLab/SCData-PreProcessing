@@ -77,8 +77,12 @@ class Preprocess():
             # whatever comes after '.'
             self.inp_format = path.pop();
             # potential path for saving the modified data (in the same directory as the original data)
-            self.save_path = path[0];
-        
+            try:
+                self.save_path = path[0];
+            except:
+                logging.info("We think you provided a path, we will save the modified files in the same dir")
+                self.save_path = self.raw_path
+                
         # checking the different input formats 
         if self.inp_format == 'h5ad':
             adata = sc.read_h5ad(self.raw_path)
@@ -89,9 +93,15 @@ class Preprocess():
         elif self.inp_format == 'mtx':
             adata = scanpy.read_mtx(self.raw_path)
         
+        # if we are provided a path instead where the .mtx file is stored
         else:
             try:
-                adata = scanpy.read(self.raw_path)
+                adata = sc.read_10x_mtx(self.raw_path,
+                                var_names='gene_symbols',                # use gene symbols for the variable names (variables-axis index)
+                                )
+                
+                  # a more general reading 
+#                 adata = scanpy.read(self.raw_path)
                 
             except:
                 raise ValueError(f"We have not gotten to {self.inp_format} yet, please explicitly specify this format for the method call")
