@@ -1,0 +1,9 @@
+fa2
+python-igraph
+scanpy
+anndata
+pandas
+scipy
+numpy
+tqdm
+leidenalg

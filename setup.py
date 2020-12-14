@@ -23,7 +23,10 @@ setup(
                         'pandas',
                         'scipy',
                         'numpy',
-                        'tqdm'
+                        'tqdm',
+                        'python-igraph',
+                        'fa2',
+                        'leidenalg'
                         ],
       classifiers=[
                    "Development Status :: 1 - Beta",
