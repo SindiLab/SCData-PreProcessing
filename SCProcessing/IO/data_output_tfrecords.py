@@ -11,7 +11,7 @@ import multiprocessing as mp
 import numpy as np
 from SCProcessing import Preprocess
 
-import tensorflow as tf
+# import tensorflow as tf
 
 
 sct = collections.namedtuple('sc', ('barcode', 'count_no', 'genes_no', 'dset', 'cluster'))
