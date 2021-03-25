@@ -27,7 +27,7 @@ class TrainSplit():
     
     """
     
-    def __init__(self, data, trainPercentage, validationPercentage, testPercentage, balancedSplit, randSeed, clusterRes=None, savePath = None):
+    def __init__(self, data, trainNumber, validationNumber, testNumber, balancedSplit:bool=True, randSeed:int=0, clusterRes=None, savePath = None):
         
         """
         
@@ -36,9 +36,9 @@ class TrainSplit():
         
         """
         self.sc_raw = data;
-        self.train_cells = trainPercentage;
-        self.valid_cells = validationPercentage;
-        self.test_cells = testPercentage;
+        self.train_cells = trainNumber;
+        self.valid_cells = validationNumber;
+        self.test_cells = testNumber;
         self.balanced_split = balancedSplit;
         self.split_seed = randSeed;
         self.cluster_res = clusterRes;
@@ -96,9 +96,14 @@ class TrainSplit():
                 for key in valid_cells_per_cluster:
 
                     # all cells from clus idx
-                    indices = self.sc_raw.obs[
-                        self.sc_raw.obs['cluster'] == str(key)].index
+                    try:
+                        indices = self.sc_raw.obs[
+                            self.sc_raw.obs['cluster'] == str(key)].index
+                    except:
+                        logging.info("Could not find the attribute 'cluster' in data")
+                        logging.info("Make sure this exists first before split")
 
+                        
                     test_valid_indices = np.random.choice(
                         indices, valid_cells_per_cluster[key] +
                         test_cells_per_cluster[key], replace=False)
@@ -226,7 +231,12 @@ class TrainSplit():
     def Cluster_ratios(self):
         
         # adding clusters' ratios
-        cells_per_cluster = Counter(self.sc_raw.obs['cluster'])
+        try:
+            cells_per_cluster = Counter(self.sc_raw.obs['cluster'])
+        except:
+            self.sc_raw.obs['cluster'] = self.sc_raw.obs['louvain']
+            cells_per_cluster = Counter(self.sc_raw.obs['cluster'])
+            
         clust_ratios = dict()
         for key, value in cells_per_cluster.items():
             clust_ratios[key] = value / self.sc_raw.shape[0]
