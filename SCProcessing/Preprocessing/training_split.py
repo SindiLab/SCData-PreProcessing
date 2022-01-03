@@ -27,7 +27,7 @@ class TrainSplit():
     
     """
     
-    def __init__(self, data, trainPercentage, validationPercentage, testPercentage, balancedSplit, randSeed, clusterRes=None, savePath = None):
+    def __init__(self, data, trainNumber, validationNumber, testNumber, balancedSplit:bool=True, randSeed:int=0, clusterRes=None, savePath = None):
         
         """
         
@@ -36,9 +36,9 @@ class TrainSplit():
         
         """
         self.sc_raw = data;
-        self.train_cells = trainPercentage;
-        self.valid_cells = validationPercentage;
-        self.test_cells = testPercentage;
+        self.train_cells = trainNumber;
+        self.valid_cells = validationNumber;
+        self.test_cells = testNumber;
         self.balanced_split = balancedSplit;
         self.split_seed = randSeed;
         self.cluster_res = clusterRes;
@@ -72,44 +72,60 @@ class TrainSplit():
         np.random.seed(self.split_seed)
 
         if self.balanced_split:
-            logging.info("Starting a *balanced* split")
-            print("Starting a *balanced* split")
+            
+            if hasattr(self, 'clusters_ratios'):
+                logging.info("Cluster Ratios exist")
+                
+                logging.info("Starting a *balanced* split")
+                print("Starting a *balanced* split")
 
-            valid_cells_per_cluster = {
-                key: int(value * self.valid_cells)
-                for key, value in self.clusters_ratios.items()}
+                valid_cells_per_cluster = {
+                    key: int(value * self.valid_cells)
+                    for key, value in self.clusters_ratios.items()}
 
-            test_cells_per_cluster = {
-                key: int(value * self.test_cells)
-                for key, value in self.clusters_ratios.items()}
+                test_cells_per_cluster = {
+                    key: int(value * self.test_cells)
+                    for key, value in self.clusters_ratios.items()}
 
-            dataset = np.repeat('train', self.sc_raw.shape[0])
-            unique_groups = np.asarray(['valid', 'test', 'train'])
-            self.sc_raw.obs['split'] = pd.Categorical(
-                values=dataset,
-                categories=natsorted(unique_groups))
+                dataset = np.repeat('train', self.sc_raw.shape[0])
+                unique_groups = np.asarray(['valid', 'test', 'train'])
+                self.sc_raw.obs['split'] = pd.Categorical(
+                    values=dataset,
+                    categories=natsorted(unique_groups))
 
-            for key in valid_cells_per_cluster:
+                for key in valid_cells_per_cluster:
 
-                # all cells from clus idx
-                indices = self.sc_raw.obs[
-                    self.sc_raw.obs['cluster'] == str(key)].index
+                    # all cells from clus idx
+                    try:
+                        indices = self.sc_raw.obs[
+                            self.sc_raw.obs['cluster'] == str(key)].index
+                    except:
+                        logging.info("Could not find the attribute 'cluster' in data")
+                        logging.info("Make sure this exists first before split")
 
-                test_valid_indices = np.random.choice(
-                    indices, valid_cells_per_cluster[key] +
-                    test_cells_per_cluster[key], replace=False)
+                        
+                    test_valid_indices = np.random.choice(
+                        indices, valid_cells_per_cluster[key] +
+                        test_cells_per_cluster[key], replace=False)
 
-                test_indices = test_valid_indices[0:test_cells_per_cluster[key]]
-                valid_indices = test_valid_indices[test_cells_per_cluster[key]:]
+                    test_indices = test_valid_indices[0:test_cells_per_cluster[key]]
+                    valid_indices = test_valid_indices[test_cells_per_cluster[key]:]
 
-                for i in test_indices:
-                    self.sc_raw.obs.at[i, 'split'] =  'test'
+                    for i in test_indices:
+                        self.sc_raw.obs.at[i, 'split'] =  'test'
 
-                for i in valid_indices:
-                    self.sc_raw.obs.at[i, 'split'] = 'valid'
+                    for i in valid_indices:
+                        self.sc_raw.obs.at[i, 'split'] = 'valid'
 
-            self.valid_cells_per_cluster = valid_cells_per_cluster
-            self.test_cells_per_cluster = test_cells_per_cluster
+                self.valid_cells_per_cluster = valid_cells_per_cluster
+                self.test_cells_per_cluster = test_cells_per_cluster
+                
+            else:
+                print("GOT HERE")
+                try: 
+                    self.Cluster_ratios()
+                except:
+                    raise ValueError(" Cluster Ratios must exist... run object.Cluster() first")
 
         else:
 
@@ -203,19 +219,34 @@ class TrainSplit():
             self.sc_raw.obs['cluster'] = clustered.obs['louvain']
             """
             self.sc_raw.obs['cluster'] = clustered.obs['leiden']
+            # get cluster ratios for balances split
+            self.Cluster_ratios();
+            
+            logging.info("Clustering of the raw data is done to %d clusters." % self.clusters_no)
 
 
+            
+
+        
+    def Cluster_ratios(self):
+        
         # adding clusters' ratios
-        cells_per_cluster = Counter(self.sc_raw.obs['cluster'])
+        try:
+            cells_per_cluster = Counter(self.sc_raw.obs['cluster'])
+        except:
+            self.sc_raw.obs['cluster'] = self.sc_raw.obs['louvain']
+            cells_per_cluster = Counter(self.sc_raw.obs['cluster'])
+            
         clust_ratios = dict()
         for key, value in cells_per_cluster.items():
             clust_ratios[key] = value / self.sc_raw.shape[0]
 
         self.clusters_ratios = clust_ratios
         self.clusters_no = len(cells_per_cluster)
-        
-        logging.info("Clustering of the raw data is done to %d clusters." % self.clusters_no)
+        logging.info("Saved cluster ratios to object attributes")
 
+
+        
 
         
     def Save(self):
