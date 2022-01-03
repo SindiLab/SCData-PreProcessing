@@ -314,6 +314,7 @@ class TrainSplit():
 
         hparam['preprocessed'] = \
         {
+            'clustering_resolution': self.cluster_res,
             'train_count': self.train_cells,
             'valid_count': self.valid_cells,
             'test_count': self.test_cells,
