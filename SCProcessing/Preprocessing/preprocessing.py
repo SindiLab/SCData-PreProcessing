@@ -268,7 +268,7 @@ class Preprocess():
         self.ReadData();
         self.Filter();
         self.Normalize();
-        self.Transfor();
+        self.Transform();
         
         if save:
             self.Save();
